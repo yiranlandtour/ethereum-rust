@@ -8,3 +8,4 @@ ethereum-types = { path = "../types" }
 ethereum-rlp = { path = "../rlp" }
 ethereum-crypto = { path = "../crypto" }
 thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }

@@ -1,0 +1,10 @@
+[package]
+name = "ethereum-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+ethereum-rlp = { path = "../rlp" }
+ethereum-crypto = { path = "../crypto" }
+thiserror = "1.0"

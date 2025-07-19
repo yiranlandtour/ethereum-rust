@@ -1,0 +1,9 @@
+[package]
+name = "ethereum-storage"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+rocksdb = "0.21"
+thiserror = "1.0"

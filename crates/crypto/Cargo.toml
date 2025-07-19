@@ -1,0 +1,11 @@
+[package]
+name = "ethereum-crypto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+thiserror = "1.0"
+sha3 = "0.10"
+secp256k1 = { version = "0.27", features = ["recovery", "rand"] }
+rand = "0.8"

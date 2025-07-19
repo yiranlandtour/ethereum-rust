@@ -1,0 +1,16 @@
+[package]
+name = "ethereum-rlp"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ethereum Rust Contributors"]
+license = "MIT OR Apache-2.0"
+description = "RLP encoding/decoding for Ethereum Rust implementation"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+thiserror = "1.0"
+bytes = "1.5"
+
+[dev-dependencies]
+hex = "0.4"
+proptest = "1.4"

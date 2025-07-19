@@ -597,6 +597,7 @@ name = "ethereum-crypto"
 version = "0.1.0"
 dependencies = [
  "ethereum-types",
+ "hex",
  "rand 0.8.5",
  "secp256k1",
  "sha3",
@@ -671,8 +672,10 @@ dependencies = [
 name = "ethereum-storage"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "ethereum-types",
  "rocksdb",
+ "serde",
  "thiserror 1.0.69",
 ]
 

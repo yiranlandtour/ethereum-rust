@@ -1,10 +1,37 @@
 use crate::{Result, TypesError};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::ops::{BitOr, BitOrAssign};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Bloom([u8; 256]);
+
+impl Serialize for Bloom {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_bytes(&self.0)
+    }
+}
+
+impl<'de> Deserialize<'de> for Bloom {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let bytes = <Vec<u8>>::deserialize(deserializer)?;
+        if bytes.len() != 256 {
+            return Err(serde::de::Error::custom(format!(
+                "Invalid Bloom filter length: expected 256, got {}",
+                bytes.len()
+            )));
+        }
+        let mut array = [0u8; 256];
+        array.copy_from_slice(&bytes);
+        Ok(Bloom(array))
+    }
+}
 
 impl Bloom {
     pub const ZERO: Bloom = Bloom([0u8; 256]);

@@ -1,5 +1,5 @@
 use crate::{Decoder, Encoder, RlpError};
-use ethereum_types::{Address, Bloom, Bytes, H160, H256, H512, U128, U256, U512};
+use ethereum_types::{Address, Bloom, Bytes, H256, U256};
 
 pub trait Encode {
     fn encode(&self, encoder: &mut Encoder);
@@ -75,17 +75,6 @@ impl Encode for &[u8] {
     }
 }
 
-impl Encode for Vec<u8> {
-    fn encode(&self, encoder: &mut Encoder) {
-        encoder.encode_bytes(self);
-    }
-}
-
-impl Decode for Vec<u8> {
-    fn decode(decoder: &mut Decoder) -> Result<Self, RlpError> {
-        decoder.decode_bytes()
-    }
-}
 
 impl Encode for &str {
     fn encode(&self, encoder: &mut Encoder) {
@@ -110,17 +99,19 @@ impl Decode for String {
     }
 }
 
-impl<T: Encode> Encode for Vec<T> {
+impl Encode for Vec<u8> {
     fn encode(&self, encoder: &mut Encoder) {
-        encoder.encode_list(self);
+        encoder.encode_bytes(self);
     }
 }
 
-impl<T: Decode> Decode for Vec<T> {
+impl Decode for Vec<u8> {
     fn decode(decoder: &mut Decoder) -> Result<Self, RlpError> {
-        decoder.decode_list()
+        decoder.decode_bytes()
     }
 }
+
+// TODO: Add generic Vec<T> implementation once we figure out how to avoid conflicts with Vec<u8>
 
 impl<T: Encode> Encode for Option<T> {
     fn encode(&self, encoder: &mut Encoder) {

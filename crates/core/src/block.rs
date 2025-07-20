@@ -1,3 +1,5 @@
+use crate::transaction::Transaction;
+use ethereum_crypto::keccak256;
 use ethereum_types::{Address, Bloom, H256, U256};
 use ethereum_rlp::{Decode, Decoder, Encode, Encoder, RlpError};
 use serde::{Deserialize, Serialize};
@@ -61,7 +63,6 @@ impl Header {
     }
     
     pub fn hash(&self) -> H256 {
-        use ethereum_crypto::keccak256;
         let mut encoder = Encoder::new();
         self.encode(&mut encoder);
         H256::from_slice(keccak256(&encoder.finish()).as_bytes())
@@ -277,7 +278,7 @@ impl Decode for Header {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Block {
     pub header: Header,
-    pub transactions: Vec<Vec<u8>>, // Will be replaced with proper Transaction type
+    pub transactions: Vec<Transaction>,
     pub ommers: Vec<Header>,
     pub withdrawals: Option<Vec<Withdrawal>>,
 }
@@ -429,7 +430,7 @@ impl Decode for Block {
         
         let header: Header = list.decode()?;
         
-        // Decode transactions list - need special handling for Vec<Vec<u8>>
+        // Decode transactions list
         let transactions = {
             let tx_item = &list.items[list.position];
             list.position += 1;
@@ -441,11 +442,12 @@ impl Decode for Block {
             
             let mut txs = Vec::new();
             for item in tx_list {
-                txs.push(item.as_bytes()
-                    .ok_or_else(|| RlpError::Decoder(ethereum_rlp::DecoderError::InvalidData(
-                        "Invalid transaction data".to_string()
-                    )))?
-                    .to_vec());
+                // Re-encode the item and decode it as Transaction
+                let mut encoder = Encoder::new();
+                encode_rlp_item(item, &mut encoder);
+                let bytes = encoder.finish();
+                let mut decoder = Decoder::new(&bytes)?;
+                txs.push(Transaction::decode(&mut decoder)?);
             }
             txs
         };

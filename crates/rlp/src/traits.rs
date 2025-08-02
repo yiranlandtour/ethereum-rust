@@ -1,4 +1,4 @@
-use crate::{Decoder, Encoder, RlpError};
+use crate::{Decoder, Encoder, RlpError, RlpItem};
 use ethereum_types::{Address, Bloom, Bytes, H256, U256};
 
 pub trait Encode {
@@ -230,5 +230,28 @@ impl Decode for Bloom {
         let mut array = [0u8; 256];
         array.copy_from_slice(&bytes);
         Ok(Bloom::from(array))
+    }
+}
+
+impl Encode for RlpItem {
+    fn encode(&self, encoder: &mut Encoder) {
+        match self {
+            RlpItem::String(bytes) => encoder.encode_bytes(bytes),
+            RlpItem::List(items) => {
+                encoder.encode_list(items);
+            }
+        }
+    }
+}
+
+impl Decode for RlpItem {
+    fn decode(decoder: &mut Decoder) -> Result<Self, RlpError> {
+        if decoder.is_list()? {
+            let items = decoder.decode_list()?;
+            Ok(RlpItem::List(items))
+        } else {
+            let bytes = decoder.decode_bytes()?;
+            Ok(RlpItem::String(bytes))
+        }
     }
 }

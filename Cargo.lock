@@ -610,6 +610,7 @@ name = "ethereum-evm"
 version = "0.1.0"
 dependencies = [
  "ethereum-core",
+ "ethereum-crypto",
  "ethereum-types",
  "thiserror 1.0.69",
 ]

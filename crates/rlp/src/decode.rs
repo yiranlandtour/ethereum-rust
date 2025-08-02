@@ -158,6 +158,13 @@ impl<'a> Decoder<'a> {
         Ok(self.data[self.position] == 0x80)
     }
     
+    pub fn is_list(&self) -> Result<bool, RlpError> {
+        if self.position >= self.data.len() {
+            return Err(DecoderError::UnexpectedEof.into());
+        }
+        Ok(self.data[self.position] >= 0xc0)
+    }
+    
     pub fn is_finished(&self) -> bool {
         self.position >= self.data.len()
     }

@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 ethereum-types = { path = "../types" }
 ethereum-core = { path = "../core" }
+ethereum-crypto = { path = "../crypto" }
 thiserror = "1.0"

@@ -40,6 +40,29 @@ pub fn keccak256_concat(data: &[&[u8]]) -> H256 {
     H256::from_slice(&result)
 }
 
+/// Recover public key from ECDSA signature
+pub fn secp256k1_recover(
+    hash: &H256,
+    recovery_id: u8,
+    r: &[u8; 32],
+    s: &[u8; 32],
+) -> Result<Vec<u8>> {
+    use secp256k1::{Secp256k1, Message, ecdsa::{RecoverableSignature, RecoveryId}};
+    
+    let secp = Secp256k1::new();
+    let message = Message::from_slice(hash.as_bytes())?;
+    let recovery_id = RecoveryId::from_i32(recovery_id as i32)?;
+    
+    let mut sig_bytes = [0u8; 64];
+    sig_bytes[..32].copy_from_slice(r);
+    sig_bytes[32..].copy_from_slice(s);
+    
+    let sig = RecoverableSignature::from_compact(&sig_bytes, recovery_id)?;
+    let pubkey = secp.recover_ecdsa(&message, &sig)?;
+    
+    Ok(pubkey.serialize_uncompressed()[1..].to_vec())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

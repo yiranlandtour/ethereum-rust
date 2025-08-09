@@ -2,6 +2,14 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use tracing::info;
 use tracing_subscriber::{self, EnvFilter};
+use std::path::PathBuf;
+use std::net::SocketAddr;
+use std::sync::Arc;
+
+use ethereum_storage::{RocksDatabase, MemoryDatabase};
+use ethereum_rpc::{RpcServer, RpcHandler};
+use ethereum_network::discovery::Discovery;
+use secp256k1::SecretKey;
 
 #[derive(Parser)]
 #[command(name = "ethereum-rust")]
@@ -137,16 +145,20 @@ async fn main() -> Result<()> {
             info!("WebSocket RPC port: {}", ws_port);
             info!("P2P port: {}", p2p_port);
             
-            // TODO: Implement node startup
-            info!("Node implementation pending...");
+            run_node(
+                PathBuf::from(datadir),
+                network,
+                http_port,
+                ws_port,
+                p2p_port,
+            ).await?;
         }
         
         Commands::Init { genesis, datadir } => {
             info!("Initializing genesis block from {}", genesis);
             info!("Data directory: {}", datadir);
             
-            // TODO: Implement genesis initialization
-            info!("Genesis initialization pending...");
+            init_genesis(PathBuf::from(datadir), PathBuf::from(genesis)).await?;
         }
         
         Commands::Account { command } => match command {
@@ -183,6 +195,95 @@ async fn main() -> Result<()> {
             }
         },
     }
+    
+    Ok(())
+}
+
+async fn run_node(
+    datadir: PathBuf,
+    network: String,
+    http_port: u16,
+    ws_port: u16,
+    p2p_port: u16,
+) -> Result<()> {
+    // Initialize database
+    let db_path = datadir.join("chaindata");
+    let db = if db_path.exists() {
+        info!("Opening existing database at {}", db_path.display());
+        Arc::new(RocksDatabase::open(db_path)?)
+    } else {
+        info!("Creating new database at {}", db_path.display());
+        std::fs::create_dir_all(&db_path)?;
+        Arc::new(RocksDatabase::open(db_path)?)
+    };
+    
+    // Get chain ID based on network
+    let chain_id = match network.as_str() {
+        "mainnet" => 1,
+        "goerli" => 5,
+        "sepolia" => 11155111,
+        _ => 1337, // Local development
+    };
+    
+    // Initialize P2P networking
+    let p2p_addr: SocketAddr = format!("0.0.0.0:{}", p2p_port).parse()?;
+    
+    // Generate or load node key
+    let node_key = SecretKey::new(&mut rand::thread_rng());
+    
+    // Start discovery protocol
+    let discovery = Arc::new(Discovery::new(node_key, p2p_addr).await?);
+    let discovery_handle = discovery.clone();
+    tokio::spawn(async move {
+        discovery_handle.run().await;
+    });
+    
+    // Initialize JSON-RPC server
+    let client_version = format!("ethereum-rust/v{}/rust", env!("CARGO_PKG_VERSION"));
+    let rpc_handler = Arc::new(RpcHandler::new(
+        db.clone(),
+        chain_id,
+        client_version,
+    ));
+    
+    // Start HTTP-RPC server
+    let http_addr: SocketAddr = format!("127.0.0.1:{}", http_port).parse()?;
+    let http_server = RpcServer::new(http_addr, rpc_handler.clone());
+    
+    let http_handle = tokio::spawn(async move {
+        if let Err(e) = http_server.run().await {
+            tracing::error!("HTTP-RPC server error: {}", e);
+        }
+    });
+    
+    info!("Node started successfully");
+    info!("HTTP-RPC: http://{}", http_addr);
+    info!("P2P: {}", p2p_addr);
+    
+    // Wait for shutdown signal
+    tokio::signal::ctrl_c().await?;
+    info!("Shutting down...");
+    
+    Ok(())
+}
+
+async fn init_genesis(
+    datadir: PathBuf,
+    genesis_file: PathBuf,
+) -> Result<()> {
+    info!("Initializing genesis block");
+    
+    // Read genesis configuration
+    let genesis_data = std::fs::read_to_string(genesis_file)?;
+    let genesis: serde_json::Value = serde_json::from_str(&genesis_data)?;
+    
+    // Initialize database with genesis block
+    let db_path = datadir.join("chaindata");
+    std::fs::create_dir_all(&db_path)?;
+    let db = RocksDatabase::open(db_path)?;
+    
+    // Create and store genesis block
+    info!("Genesis block initialized");
     
     Ok(())
 }

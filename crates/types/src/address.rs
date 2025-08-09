@@ -10,6 +10,10 @@ pub struct Address(H160);
 impl Address {
     pub const ZERO: Address = Address(H160::zero());
     
+    pub fn zero() -> Self {
+        Self::ZERO
+    }
+    
     pub fn from_slice(slice: &[u8]) -> Result<Self> {
         if slice.len() != 20 {
             return Err(TypesError::InvalidLength {

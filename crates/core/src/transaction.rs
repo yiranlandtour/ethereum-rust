@@ -138,6 +138,24 @@ impl Transaction {
         }
     }
 
+    pub fn gas_price(&self) -> U256 {
+        match self {
+            Transaction::Legacy(tx) => tx.gas_price,
+            Transaction::Eip2930(tx) => tx.gas_price,
+            Transaction::Eip1559(tx) => tx.max_fee_per_gas,
+            Transaction::Eip4844(tx) => tx.max_fee_per_gas,
+        }
+    }
+
+    pub fn from(&self) -> Address {
+        match self {
+            Transaction::Legacy(tx) => tx.sender().unwrap_or(Address::zero()),
+            Transaction::Eip2930(tx) => tx.sender().unwrap_or(Address::zero()),
+            Transaction::Eip1559(tx) => tx.sender().unwrap_or(Address::zero()),
+            Transaction::Eip4844(tx) => tx.sender().unwrap_or(Address::zero()),
+        }
+    }
+
     pub fn gas_limit(&self) -> U256 {
         match self {
             Transaction::Legacy(tx) => tx.gas_limit,
@@ -436,9 +454,10 @@ impl Encode for Eip4844Transaction {
     }
 }
 
+
 impl Decode for LegacyTransaction {
     fn decode(decoder: &mut ethereum_rlp::Decoder) -> std::result::Result<Self, ethereum_rlp::RlpError> {
-        let mut items: Vec<ethereum_rlp::RlpItem> = decoder.decode_list()?;
+        let items: Vec<ethereum_rlp::RlpItem> = decoder.decode_list()?;
         if items.len() != 9 {
             return Err(ethereum_rlp::DecoderError::InvalidData(
                 format!("Expected 9 items for legacy transaction, got {}", items.len())

@@ -1,0 +1,21 @@
+[package]
+name = "ethereum-sync"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+ethereum-core = { path = "../core" }
+ethereum-storage = { path = "../storage" }
+ethereum-network = { path = "../network" }
+ethereum-trie = { path = "../trie" }
+tokio = { version = "1.35", features = ["full"] }
+futures = "0.3"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tracing = "0.1"
+parking_lot = "0.12"
+bytes = "1.5"
+
+[dev-dependencies]
+tempfile = "3.8"

@@ -4,6 +4,7 @@ pub mod gas;
 pub mod interpreter;
 pub mod memory;
 pub mod opcodes;
+pub mod precompiled;
 pub mod stack;
 pub mod state;
 
@@ -13,6 +14,7 @@ mod tests;
 pub use error::{EvmError, EvmResult};
 pub use execution::{ExecutionContext, ExecutionResult};
 pub use interpreter::Interpreter;
+pub use precompiled::{PrecompiledContract, get_precompiled, is_precompiled};
 
 use ethereum_types::{Address, H256, U256};
 use std::collections::HashMap;

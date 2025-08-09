@@ -54,4 +54,7 @@ pub enum EvmError {
     
     #[error("Nonce overflow")]
     NonceOverflow,
+    
+    #[error("Invalid input")]
+    InvalidInput,
 }

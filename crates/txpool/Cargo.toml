@@ -1,0 +1,19 @@
+[package]
+name = "ethereum-txpool"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+ethereum-core = { path = "../core" }
+ethereum-crypto = { path = "../crypto" }
+tokio = { version = "1.35", features = ["full"] }
+futures = "0.3"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tracing = "0.1"
+parking_lot = "0.12"
+priority-queue = "1.3"
+
+[dev-dependencies]
+tempfile = "3.8"

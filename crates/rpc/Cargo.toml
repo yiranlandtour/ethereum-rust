@@ -6,7 +6,16 @@ edition = "2021"
 [dependencies]
 ethereum-types = { path = "../types" }
 ethereum-core = { path = "../core" }
+ethereum-storage = { path = "../storage" }
+ethereum-evm = { path = "../evm" }
+ethereum-trie = { path = "../trie" }
 tokio = { version = "1.35", features = ["full"] }
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
+futures = "0.3"
+tracing = "0.1"
+hex = "0.4"

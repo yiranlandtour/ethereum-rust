@@ -20,9 +20,35 @@ members = [
     "crates/types",
     "crates/rlp",
     "crates/evm",
+    "crates/trie",
+    "crates/txpool",
+    "crates/sync",
+    "crates/verification",
+    "crates/filter",
+    "crates/debug",
+    "crates/account",
+    "crates/monitor",
 ]
 
 [dependencies]
+# Workspace crates
+ethereum-core = { path = "crates/core" }
+ethereum-storage = { path = "crates/storage" }
+ethereum-rpc = { path = "crates/rpc" }
+ethereum-network = { path = "crates/network" }
+ethereum-crypto = { path = "crates/crypto" }
+ethereum-types = { path = "crates/types" }
+ethereum-consensus = { path = "crates/consensus" }
+ethereum-evm = { path = "crates/evm" }
+ethereum-trie = { path = "crates/trie" }
+ethereum-txpool = { path = "crates/txpool" }
+ethereum-sync = { path = "crates/sync" }
+ethereum-verification = { path = "crates/verification" }
+ethereum-filter = { path = "crates/filter" }
+ethereum-debug = { path = "crates/debug" }
+ethereum-account = { path = "crates/account" }
+ethereum-monitor = { path = "crates/monitor" }
+
 # Async runtime
 tokio = { version = "1.35", features = ["full"] }
 futures = "0.3"
@@ -35,6 +61,7 @@ anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 bincode = "1.3"
+toml = "0.8"
 
 # Logging
 tracing = "0.1"
@@ -49,6 +76,11 @@ directories = "5.0"
 
 # Metrics
 prometheus = "0.13"
+
+# Crypto
+secp256k1 = { version = "0.27", features = ["rand"] }
+rand = "0.8"
+hex = "0.4"
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }

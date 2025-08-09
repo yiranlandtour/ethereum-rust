@@ -1,0 +1,17 @@
+[package]
+name = "ethereum-trie"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+ethereum-rlp = { path = "../rlp" }
+ethereum-crypto = { path = "../crypto" }
+ethereum-storage = { path = "../storage" }
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+hex = "0.4"
+
+[dev-dependencies]
+tempfile = "3.8"
+rand = "0.8"

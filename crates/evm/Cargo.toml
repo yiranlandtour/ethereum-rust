@@ -8,3 +8,6 @@ ethereum-types = { path = "../types" }
 ethereum-core = { path = "../core" }
 ethereum-crypto = { path = "../crypto" }
 thiserror = "1.0"
+num-bigint = "0.4"
+sha2 = "0.10"
+ripemd = "0.1"

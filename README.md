@@ -1,10 +1,18 @@
 # Ethereum Rust
 
-A complete Ethereum implementation in Rust, providing a modern, memory-safe, and high-performance alternative to existing implementations.
+A complete Ethereum implementation in Rust, providing a full node implementation with support for the Ethereum protocol.
 
-## Project Status
+## Features
 
-🚧 **Under Active Development** - This project is in early development phase. See the [roadmap](docs/ROADMAP.md) for implementation progress.
+### Core Components
+- **Full Node Implementation**: Complete Ethereum node with P2P networking, transaction pool, and state management
+- **EVM**: Ethereum Virtual Machine implementation for smart contract execution
+- **Storage**: RocksDB and in-memory database backends for blockchain storage
+- **Consensus**: Support for Proof of Stake (PoS) and Proof of Authority (Clique)
+- **Networking**: DevP2P protocol implementation with RLPx encryption and Discovery v4
+- **JSON-RPC API**: Full Ethereum JSON-RPC API support (eth, net, web3, debug, trace)
+- **Account Management**: HD wallet support, keystore management, transaction signing
+- **Monitoring**: Prometheus metrics, health checks, and alerting system
 
 ## Architecture
 

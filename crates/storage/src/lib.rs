@@ -3,9 +3,11 @@ use ethereum_types::{H256, U256};
 
 pub mod traits;
 pub mod memory;
+pub mod rocksdb;
 
 pub use traits::*;
 pub use memory::*;
+pub use rocksdb::*;
 
 #[derive(Debug, Error)]
 pub enum StorageError {

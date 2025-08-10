@@ -10,12 +10,16 @@ pub mod validator;
 pub mod fork_choice;
 pub mod pos;
 pub mod clique;
+pub mod eip7251;
+pub mod eip7002;
 
 pub use engine::{ConsensusEngine, EngineError};
 pub use validator::{BlockValidator, ValidationResult};
 pub use fork_choice::{ForkChoice, ForkChoiceRule};
 pub use pos::ProofOfStake;
 pub use clique::Clique;
+pub use eip7251::{ValidatorEip7251, ValidatorRegistry, ConsolidationRequest};
+pub use eip7002::{WithdrawalRequest, WithdrawalRequestContract, ExitQueueManager};
 
 #[derive(Debug, Error)]
 pub enum ConsensusError {

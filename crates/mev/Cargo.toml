@@ -1,0 +1,37 @@
+[package]
+name = "ethereum-mev"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+ethereum-core = { path = "../core" }
+ethereum-engine = { path = "../engine" }
+ethereum-crypto = { path = "../crypto" }
+
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json"] }
+hyper = { version = "1.0", features = ["full"] }
+axum = { version = "0.7" }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Crypto
+secp256k1 = "0.29"
+rand = "0.8"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+
+[dev-dependencies]
+mockito = "1.0"

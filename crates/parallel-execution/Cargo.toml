@@ -1,0 +1,45 @@
+[package]
+name = "ethereum-parallel-execution"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+ethereum-core = { path = "../core" }
+ethereum-evm = { path = "../evm" }
+ethereum-storage = { path = "../storage" }
+
+# Parallel execution
+rayon = "1.10"
+crossbeam = "0.8"
+parking_lot = "0.12"
+
+# Conflict detection
+dashmap = "6.0"
+im = "15.1"  # Immutable data structures
+
+# Scheduling
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Transaction analysis
+petgraph = "0.6"  # For dependency graphs
+
+# Error handling
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+
+# Metrics
+prometheus = "0.13"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"
+
+[dev-dependencies]
+criterion = "0.5"
+rand = "0.8"
+proptest = "1.0"

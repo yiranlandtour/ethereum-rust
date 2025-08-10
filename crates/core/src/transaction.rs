@@ -28,7 +28,7 @@ fn encode_h256_list(list: &[H256]) -> ethereum_types::Bytes {
     ethereum_types::Bytes::from_vec(encoder.finish())
 }
 
-fn encode_access_list(list: &[AccessListItem]) -> ethereum_types::Bytes {
+pub fn encode_access_list(list: &[AccessListItem]) -> ethereum_types::Bytes {
     let mut encoder = Encoder::new();
     encoder.encode_list(list);
     ethereum_types::Bytes::from_vec(encoder.finish())
@@ -40,6 +40,7 @@ pub enum Transaction {
     Eip2930(Eip2930Transaction),
     Eip1559(Eip1559Transaction),
     Eip4844(Eip4844Transaction),
+    Eip7702(crate::eip7702::Eip7702Transaction),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -117,6 +118,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => tx.hash(),
             Transaction::Eip1559(tx) => tx.hash(),
             Transaction::Eip4844(tx) => tx.hash(),
+            Transaction::Eip7702(tx) => tx.hash(),
         }
     }
 
@@ -126,6 +128,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => tx.sender(),
             Transaction::Eip1559(tx) => tx.sender(),
             Transaction::Eip4844(tx) => tx.sender(),
+            Transaction::Eip7702(tx) => tx.sender().map_err(|_| TransactionError::InvalidSignature),
         }
     }
 
@@ -135,6 +138,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => tx.nonce,
             Transaction::Eip1559(tx) => tx.nonce,
             Transaction::Eip4844(tx) => tx.nonce,
+            Transaction::Eip7702(tx) => tx.nonce,
         }
     }
 
@@ -144,6 +148,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => tx.gas_price,
             Transaction::Eip1559(tx) => tx.max_fee_per_gas,
             Transaction::Eip4844(tx) => tx.max_fee_per_gas,
+            Transaction::Eip7702(tx) => tx.max_fee_per_gas,
         }
     }
 
@@ -153,6 +158,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => tx.sender().unwrap_or(Address::zero()),
             Transaction::Eip1559(tx) => tx.sender().unwrap_or(Address::zero()),
             Transaction::Eip4844(tx) => tx.sender().unwrap_or(Address::zero()),
+            Transaction::Eip7702(tx) => tx.sender().unwrap_or(Address::zero()),
         }
     }
 
@@ -162,6 +168,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => tx.gas_limit,
             Transaction::Eip1559(tx) => tx.gas_limit,
             Transaction::Eip4844(tx) => tx.gas_limit,
+            Transaction::Eip7702(tx) => tx.gas_limit,
         }
     }
 
@@ -171,6 +178,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => tx.to,
             Transaction::Eip1559(tx) => tx.to,
             Transaction::Eip4844(tx) => Some(tx.to),
+            Transaction::Eip7702(tx) => Some(tx.to),
         }
     }
 
@@ -180,6 +188,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => tx.value,
             Transaction::Eip1559(tx) => tx.value,
             Transaction::Eip4844(tx) => tx.value,
+            Transaction::Eip7702(tx) => tx.value,
         }
     }
 
@@ -189,6 +198,7 @@ impl Transaction {
             Transaction::Eip2930(tx) => &tx.data,
             Transaction::Eip1559(tx) => &tx.data,
             Transaction::Eip4844(tx) => &tx.data,
+            Transaction::Eip7702(tx) => &tx.data,
         }
     }
 }
@@ -564,15 +574,47 @@ impl Encode for Transaction {
                 encoded.extend_from_slice(&ethereum_rlp::encode(tx));
                 encoder.encode_bytes(&encoded);
             }
+            Transaction::Eip7702(tx) => {
+                let mut encoded = vec![0x04];
+                encoded.extend_from_slice(&ethereum_rlp::encode(tx));
+                encoder.encode_bytes(&encoded);
+            }
         }
     }
 }
 
 impl Decode for Transaction {
     fn decode(decoder: &mut ethereum_rlp::Decoder) -> std::result::Result<Self, ethereum_rlp::RlpError> {
-        // For blocks, transactions are typically encoded as legacy format
-        // Typed transactions would need special handling
-        Ok(Transaction::Legacy(LegacyTransaction::decode(decoder)?))
+        // Check if this is a typed transaction
+        let bytes = decoder.peek_bytes();
+        if bytes.len() > 0 && bytes[0] <= 0x7f {
+            // This is a typed transaction
+            let tx_type = bytes[0];
+            let tx_data = &bytes[1..];
+            
+            match tx_type {
+                0x01 => {
+                    let mut decoder = ethereum_rlp::Decoder::new(tx_data);
+                    Ok(Transaction::Eip2930(Eip2930Transaction::decode(&mut decoder)?))
+                }
+                0x02 => {
+                    let mut decoder = ethereum_rlp::Decoder::new(tx_data);
+                    Ok(Transaction::Eip1559(Eip1559Transaction::decode(&mut decoder)?))
+                }
+                0x03 => {
+                    let mut decoder = ethereum_rlp::Decoder::new(tx_data);
+                    Ok(Transaction::Eip4844(Eip4844Transaction::decode(&mut decoder)?))
+                }
+                0x04 => {
+                    let mut decoder = ethereum_rlp::Decoder::new(tx_data);
+                    Ok(Transaction::Eip7702(crate::eip7702::Eip7702Transaction::decode(&mut decoder)?))
+                }
+                _ => Err(ethereum_rlp::RlpError::Custom(format!("Unknown transaction type: {}", tx_type)))
+            }
+        } else {
+            // Legacy transaction
+            Ok(Transaction::Legacy(LegacyTransaction::decode(decoder)?))
+        }
     }
 }
 

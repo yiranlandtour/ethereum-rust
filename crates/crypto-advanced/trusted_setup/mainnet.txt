@@ -1,0 +1,3 @@
+# Placeholder for KZG trusted setup
+# In production, this should contain the actual trusted setup parameters
+# Download from: https://github.com/ethereum/c-kzg-4844/tree/main/src/trusted_setup

@@ -17,9 +17,12 @@ members = [
     "crates/storage",
     "crates/rpc",
     "crates/crypto",
+    "crates/crypto-advanced",
     "crates/types",
     "crates/rlp",
     "crates/evm",
+    "crates/engine",
+    "crates/mev",
     "crates/trie",
     "crates/txpool",
     "crates/sync",
@@ -28,6 +31,8 @@ members = [
     "crates/debug",
     "crates/account",
     "crates/monitor",
+    "crates/das",
+    "crates/verkle",
 ]
 
 [dependencies]
@@ -48,6 +53,9 @@ ethereum-filter = { path = "crates/filter" }
 ethereum-debug = { path = "crates/debug" }
 ethereum-account = { path = "crates/account" }
 ethereum-monitor = { path = "crates/monitor" }
+ethereum-engine = { path = "crates/engine" }
+ethereum-crypto-advanced = { path = "crates/crypto-advanced" }
+ethereum-mev = { path = "crates/mev" }
 
 # Async runtime
 tokio = { version = "1.35", features = ["full"] }

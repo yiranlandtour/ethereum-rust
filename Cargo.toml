@@ -33,6 +33,8 @@ members = [
     "crates/monitor",
     "crates/das",
     "crates/verkle",
+    "crates/evm-jit",
+    "crates/parallel-execution",
 ]
 
 [dependencies]

@@ -1,0 +1,202 @@
+groups:
+  - name: ethereum_rust_alerts
+    interval: 30s
+    rules:
+      # Node health alerts
+      - alert: NodeDown
+        expr: up{job="ethereum-rust"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: node
+        annotations:
+          summary: "Ethereum Rust node is down"
+          description: "Node {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total{job="ethereum-rust"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% (current value: {{ $value }}%)"
+
+      - alert: HighMemoryUsage
+        expr: (process_resident_memory_bytes{job="ethereum-rust"} / (1024 * 1024 * 1024)) > 12
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 12GB (current value: {{ $value }}GB)"
+
+      # Blockchain sync alerts
+      - alert: SyncLagging
+        expr: ethereum_sync_lag_blocks > 100
+        for: 10m
+        labels:
+          severity: warning
+          component: sync
+        annotations:
+          summary: "Node sync is lagging"
+          description: "Node is {{ $value }} blocks behind the network"
+
+      - alert: SyncStalled
+        expr: rate(ethereum_blocks_processed_total[5m]) == 0
+        for: 10m
+        labels:
+          severity: critical
+          component: sync
+        annotations:
+          summary: "Block processing has stalled"
+          description: "No blocks have been processed in the last 10 minutes"
+
+      # Network alerts
+      - alert: LowPeerCount
+        expr: ethereum_p2p_peers < 5
+        for: 5m
+        labels:
+          severity: warning
+          component: network
+        annotations:
+          summary: "Low peer count"
+          description: "Connected to only {{ $value }} peers (minimum recommended: 5)"
+
+      - alert: NoPeers
+        expr: ethereum_p2p_peers == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: network
+        annotations:
+          summary: "No peers connected"
+          description: "Node has no peer connections"
+
+      # Transaction pool alerts
+      - alert: MempoolFull
+        expr: ethereum_txpool_pending > 10000
+        for: 5m
+        labels:
+          severity: warning
+          component: txpool
+        annotations:
+          summary: "Transaction pool is full"
+          description: "{{ $value }} pending transactions in mempool"
+
+      - alert: HighGasPrice
+        expr: ethereum_gas_price_wei > 100000000000
+        for: 5m
+        labels:
+          severity: info
+          component: gas
+        annotations:
+          summary: "High gas price detected"
+          description: "Gas price is {{ $value }} wei (>100 Gwei)"
+
+      # Storage alerts
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          component: storage
+        annotations:
+          summary: "Low disk space"
+          description: "Less than 10% disk space remaining ({{ $value }}% free)"
+
+      - alert: HighDiskIOWait
+        expr: rate(node_disk_io_time_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: storage
+        annotations:
+          summary: "High disk I/O wait"
+          description: "Disk I/O wait time is {{ $value }}"
+
+      # RPC alerts
+      - alert: HighRPCLatency
+        expr: histogram_quantile(0.95, rate(ethereum_rpc_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: rpc
+        annotations:
+          summary: "High RPC latency"
+          description: "95th percentile RPC latency is {{ $value }}s"
+
+      - alert: HighRPCErrorRate
+        expr: rate(ethereum_rpc_errors_total[5m]) / rate(ethereum_rpc_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: rpc
+        annotations:
+          summary: "High RPC error rate"
+          description: "RPC error rate is {{ $value }}% (>5%)"
+
+      # MEV alerts
+      - alert: MEVRelayDown
+        expr: ethereum_mev_relay_connected == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: mev
+        annotations:
+          summary: "MEV relay disconnected"
+          description: "Unable to connect to MEV relay"
+
+      - alert: LowBlockReward
+        expr: ethereum_block_reward_eth < 0.01
+        for: 10m
+        labels:
+          severity: info
+          component: mev
+        annotations:
+          summary: "Low block rewards"
+          description: "Average block reward is {{ $value }} ETH"
+
+      # Finality alerts (SSF)
+      - alert: FinalityDelay
+        expr: ethereum_finality_delay_seconds > 20
+        for: 2m
+        labels:
+          severity: critical
+          component: consensus
+        annotations:
+          summary: "Finality delayed"
+          description: "Block finality is taking {{ $value }}s (expected: 12s)"
+
+      - alert: FinalityMissed
+        expr: increase(ethereum_finality_misses_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: consensus
+        annotations:
+          summary: "Finality missed"
+          description: "{{ $value }} finality misses in the last 5 minutes"
+
+      # History expiry alerts
+      - alert: HistoryExpiryFailed
+        expr: increase(ethereum_history_expiry_failures_total[1h]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          component: storage
+        annotations:
+          summary: "History expiry failed"
+          description: "{{ $value }} history expiry failures in the last hour"
+
+      - alert: ArchivalStorageFull
+        expr: ethereum_archival_storage_bytes > 1000000000000
+        for: 5m
+        labels:
+          severity: warning
+          component: storage
+        annotations:
+          summary: "Archival storage nearly full"
+          description: "Archival storage using {{ $value }} bytes (>1TB)"

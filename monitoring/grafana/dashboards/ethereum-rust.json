@@ -1,0 +1,352 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "ethereum-rust-main",
+    "title": "Ethereum Rust - Main Dashboard",
+    "tags": ["ethereum", "blockchain", "rust"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "5s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "Block Processing Rate",
+        "targets": [
+          {
+            "expr": "rate(ethereum_blocks_processed_total[5m])",
+            "legendFormat": "Blocks/sec",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Blocks/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "title": "Transaction Throughput",
+        "targets": [
+          {
+            "expr": "rate(ethereum_transactions_processed_total[5m])",
+            "legendFormat": "TX/sec",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Transactions/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
+        "type": "stat",
+        "title": "Current Block Height",
+        "targets": [
+          {
+            "expr": "ethereum_chain_height",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "textMode": "value",
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center"
+        }
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8},
+        "type": "stat",
+        "title": "Peer Count",
+        "targets": [
+          {
+            "expr": "ethereum_p2p_peers",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "textMode": "value",
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center"
+        }
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 8},
+        "type": "stat",
+        "title": "Mempool Size",
+        "targets": [
+          {
+            "expr": "ethereum_txpool_pending",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "textMode": "value",
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center"
+        }
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 8},
+        "type": "stat",
+        "title": "Gas Price (Gwei)",
+        "targets": [
+          {
+            "expr": "ethereum_gas_price_wei / 1000000000",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "auto",
+          "textMode": "value",
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center"
+        }
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "type": "graph",
+        "title": "CPU & Memory Usage",
+        "targets": [
+          {
+            "expr": "rate(process_cpu_seconds_total{job=\"ethereum-rust\"}[5m]) * 100",
+            "legendFormat": "CPU %",
+            "refId": "A"
+          },
+          {
+            "expr": "(process_resident_memory_bytes{job=\"ethereum-rust\"} / (1024 * 1024 * 1024))",
+            "legendFormat": "Memory GB",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "Usage"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 8,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "type": "graph",
+        "title": "Network I/O",
+        "targets": [
+          {
+            "expr": "rate(ethereum_p2p_bytes_received_total[5m])",
+            "legendFormat": "Received",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(ethereum_p2p_bytes_sent_total[5m])",
+            "legendFormat": "Sent",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "Bps", "label": "Bytes/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 9,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "type": "graph",
+        "title": "RPC Request Latency (p50, p95, p99)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(ethereum_rpc_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(ethereum_rpc_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(ethereum_rpc_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p99",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Latency"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 10,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "type": "graph",
+        "title": "Single Slot Finality Performance",
+        "targets": [
+          {
+            "expr": "ethereum_finality_delay_seconds",
+            "legendFormat": "Finality Delay",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(ethereum_finality_misses_total[5m])",
+            "legendFormat": "Misses/sec",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Seconds"},
+          {"format": "short"}
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [20],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": ["A", "5m", "now"]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "60s",
+          "handler": 1,
+          "name": "Finality Delay Alert",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 11,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+        "type": "graph",
+        "title": "Storage Usage",
+        "targets": [
+          {
+            "expr": "ethereum_database_size_bytes / (1024 * 1024 * 1024)",
+            "legendFormat": "Database GB",
+            "refId": "A"
+          },
+          {
+            "expr": "ethereum_archival_storage_bytes / (1024 * 1024 * 1024)",
+            "legendFormat": "Archive GB",
+            "refId": "B"
+          },
+          {
+            "expr": "node_filesystem_avail_bytes{mountpoint=\"/\"} / (1024 * 1024 * 1024)",
+            "legendFormat": "Available GB",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "decgbytes", "label": "Storage"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 12,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+        "type": "graph",
+        "title": "MEV Performance",
+        "targets": [
+          {
+            "expr": "ethereum_mev_bundles_received_total",
+            "legendFormat": "Bundles Received",
+            "refId": "A"
+          },
+          {
+            "expr": "ethereum_mev_bundles_included_total",
+            "legendFormat": "Bundles Included",
+            "refId": "B"
+          },
+          {
+            "expr": "ethereum_block_reward_eth",
+            "legendFormat": "Block Reward ETH",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Count"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 13,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 36},
+        "type": "logs",
+        "title": "Recent Logs",
+        "targets": [
+          {
+            "expr": "{job=\"ethereum-rust\"} |~ \"ERROR|WARN\"",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showTime": true,
+          "showLabels": false,
+          "showCommonLabels": false,
+          "wrapLogMessage": false,
+          "sortOrder": "Descending",
+          "dedupStrategy": "none",
+          "enableLogDetails": true,
+          "prettifyLogMessage": false
+        }
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "datasource",
+          "type": "datasource",
+          "query": "prometheus",
+          "current": {
+            "text": "Prometheus",
+            "value": "Prometheus"
+          }
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "datasource": "Prometheus",
+          "enable": true,
+          "expr": "ALERTS{alertstate=\"firing\"}",
+          "iconColor": "red",
+          "name": "Alerts",
+          "step": "60s",
+          "tagKeys": "severity",
+          "textFormat": "{{ alertname }}: {{ summary }}",
+          "titleFormat": "Alert"
+        }
+      ]
+    }
+  }
+}

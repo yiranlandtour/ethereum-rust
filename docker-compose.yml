@@ -1,0 +1,173 @@
+version: '3.8'
+
+services:
+  # Ethereum Rust execution client
+  ethereum-rust:
+    image: ethereum/rust-ethereum:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ethereum-rust
+    restart: unless-stopped
+    ports:
+      - "8545:8545"     # JSON-RPC HTTP
+      - "8546:8546"     # JSON-RPC WebSocket
+      - "30303:30303"   # P2P TCP
+      - "30303:30303/udp" # P2P UDP
+      - "9090:9090"     # Prometheus metrics
+      - "8551:8551"     # Engine API
+    volumes:
+      - ethereum-data:/data
+      - ./config:/config:ro
+    environment:
+      - RUST_LOG=info
+      - ETHEREUM_NETWORK=mainnet
+      - MAX_PEERS=50
+      - CACHE_SIZE=4096
+      - PARALLEL_EXECUTION=true
+      - JIT_ENABLED=true
+      - SSF_ENABLED=true
+      - HISTORY_EXPIRY_ENABLED=true
+    networks:
+      - ethereum
+    command: 
+      - run
+      - --config=/config/config.toml
+      - --data-dir=/data
+      - --rpc-external
+      - --ws-external
+      - --metrics
+    healthcheck:
+      test: ["CMD", "ethereum-rust", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Consensus client (Lighthouse)
+  lighthouse:
+    image: sigp/lighthouse:latest
+    container_name: lighthouse
+    restart: unless-stopped
+    ports:
+      - "9000:9000"     # P2P
+      - "5052:5052"     # HTTP API
+    volumes:
+      - lighthouse-data:/data
+      - ./jwt.hex:/jwt.hex:ro
+    environment:
+      - NETWORK=mainnet
+    networks:
+      - ethereum
+    command:
+      - lighthouse
+      - bn
+      - --network=mainnet
+      - --datadir=/data
+      - --http
+      - --http-address=0.0.0.0
+      - --execution-endpoint=http://ethereum-rust:8551
+      - --execution-jwt=/jwt.hex
+      - --checkpoint-sync-url=https://mainnet.checkpoint.sigp.io
+    depends_on:
+      - ethereum-rust
+
+  # Prometheus for monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - ethereum
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    depends_on:
+      - ethereum-rust
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=ethereum
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    networks:
+      - ethereum
+    depends_on:
+      - prometheus
+
+  # Node exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - ethereum
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ethereum
+    command: redis-server --appendonly yes
+
+  # PostgreSQL for indexing (optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=ethereum
+      - POSTGRES_USER=ethereum
+      - POSTGRES_PASSWORD=ethereum
+    networks:
+      - ethereum
+
+networks:
+  ethereum:
+    driver: bridge
+
+volumes:
+  ethereum-data:
+  lighthouse-data:
+  prometheus-data:
+  grafana-data:
+  redis-data:
+  postgres-data:

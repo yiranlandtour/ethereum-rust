@@ -1,0 +1,71 @@
+[package]
+name = "ethereum-ai-security"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+ethereum-core = { path = "../core" }
+ethereum-evm = { path = "../evm" }
+ethereum-zkml = { path = "../zkml" }
+
+# AI/ML frameworks
+candle-core = "0.3"
+candle-nn = "0.3"
+candle-transformers = "0.3"
+ort = "2.0"  # ONNX Runtime
+tch = "0.14" # PyTorch bindings
+tokenizers = "0.15"  # For LLM tokenization
+
+# Formal verification
+prusti-contracts = "0.1"
+kani-verifier = "0.49"
+move-prover = "0.1"
+
+# Fuzzing
+cargo-fuzz = "0.12"
+honggfuzz = "0.5"
+afl = "0.15"
+
+# Static analysis
+mirai = "1.1"
+clippy-sarif = "0.5"
+semgrep-rs = "0.1"
+
+# Anomaly detection
+isolation-forest = "0.1"
+outlier-detection = "0.1"
+
+# Self-healing
+mutation-testing = "0.1"
+program-synthesis = "0.1"
+
+# Circuit breakers
+circuit-breaker = "0.2"
+governor = "0.6"  # Rate limiting
+
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+
+# Database for threat intelligence
+sled = "0.34"
+rocksdb = "0.22"
+
+# Metrics and monitoring
+prometheus = "0.13"
+opentelemetry = "0.22"
+
+# Error handling
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"
+
+[dev-dependencies]
+quickcheck = "1.0"
+proptest = "1.0"

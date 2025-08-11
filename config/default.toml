@@ -1,0 +1,242 @@
+# Ethereum Rust - Default Configuration
+
+[node]
+# Node identity
+name = "ethereum-rust"
+# Chain to connect to (mainnet, sepolia, holesky)
+chain = "mainnet"
+# Data directory
+data_dir = "/data"
+# Enable archive mode (keep all historical data)
+archive = false
+
+[network]
+# P2P listen address
+listen_addr = "0.0.0.0:30303"
+# Maximum number of peers
+max_peers = 50
+# Minimum number of peers
+min_peers = 5
+# Enable discovery
+discovery = true
+# Discovery protocol version
+discovery_version = "v5"
+# Boot nodes (mainnet defaults)
+boot_nodes = [
+    "enode://d860a01f9722d78051619d1e2351aba3f43f943f6f00718d1b9baa4101932a1f5011f16bb2b1bb35db20d6fe28fa0bf09636d26a87d31de9ec6203eeedb1178b@18.138.108.67:30303",
+    "enode://22a8232c3abc76a16ae9d6c3b164f98775fe226f0917b0ca871128a74a8e9630b458460865bab457221f1d448dd9791d24c4e5d88786180ac185df813a68d4de@3.209.45.79:30303"
+]
+# NAT traversal
+nat = "any"
+# Enable port mapping
+port_map = true
+
+[execution]
+# Enable parallel execution
+parallel = true
+# Number of worker threads for parallel execution
+workers = 8
+# Enable JIT compilation
+jit = true
+# JIT optimization level (0-3)
+jit_optimization = 2
+# Cache size in MB
+cache_size = 4096
+# State cache size in MB
+state_cache = 2048
+# Enable EVM tracing
+tracing = false
+
+[consensus]
+# Engine API endpoint
+engine_endpoint = "0.0.0.0:8551"
+# JWT secret file path
+jwt_secret = "/jwt.hex"
+# Enable Single Slot Finality
+ssf_enabled = true
+# SSF configuration
+[consensus.ssf]
+slot_duration = "12s"
+committee_count = 64
+finality_threshold = 0.67
+optimistic_finality = true
+
+[storage]
+# Database engine (rocksdb, lmdb)
+engine = "rocksdb"
+# Database path
+path = "/data/db"
+# Cache size in MB
+cache = 2048
+# Compression algorithm (none, snappy, lz4, zstd)
+compression = "zstd"
+# Write buffer size in MB
+write_buffer = 256
+# Compact on startup
+compact_on_startup = false
+
+[storage.history_expiry]
+# Enable history expiry (EIP-4444)
+enabled = true
+# Retention period
+retention = "365d"
+# Minimum blocks to keep
+min_blocks = 128
+# Archive before expiry
+archive_before_expiry = true
+# Distribute to Portal Network
+portal_distribution = true
+# Expiry check interval
+check_interval = "1h"
+
+[storage.verkle]
+# Enable Verkle tree migration
+enabled = false
+# Migration strategy (immediate, gradual, overlay, copy_on_write)
+strategy = "gradual"
+# Accounts per block (for gradual migration)
+accounts_per_block = 1000
+# Storage slots per account
+storage_slots_per_account = 100
+
+[rpc]
+# HTTP RPC configuration
+[rpc.http]
+enabled = true
+host = "0.0.0.0"
+port = 8545
+# Available APIs
+apis = ["eth", "net", "web3", "debug", "trace", "txpool", "admin"]
+# CORS origins
+cors = ["*"]
+# Max connections
+max_connections = 100
+# Request timeout in seconds
+timeout = 30
+
+# WebSocket RPC configuration
+[rpc.ws]
+enabled = true
+host = "0.0.0.0"
+port = 8546
+# Max connections
+max_connections = 100
+# Max subscriptions per connection
+max_subscriptions = 100
+
+# IPC configuration
+[rpc.ipc]
+enabled = true
+path = "/data/ethereum.ipc"
+
+[mempool]
+# Maximum transactions in pool
+max_size = 10000
+# Minimum gas price (wei)
+min_gas_price = 1000000000
+# Maximum gas limit
+max_gas_limit = 30000000
+# Transaction lifetime
+lifetime = "3h"
+# Enable local transactions
+local_transactions = true
+# Price bump percentage for replacement
+price_bump = 10
+
+[mev]
+# Enable MEV features
+enabled = true
+# Builder mode
+builder = true
+# Relay URLs
+relays = [
+    "https://relay.flashbots.net",
+    "https://relay.ultrasound.money"
+]
+# Bundle simulation
+simulate_bundles = true
+# Profit threshold (wei)
+min_profit = 1000000000000000
+
+[metrics]
+# Enable metrics
+enabled = true
+# Metrics endpoint
+endpoint = "0.0.0.0:9090"
+# Update interval
+update_interval = "5s"
+
+[logging]
+# Log level (error, warn, info, debug, trace)
+level = "info"
+# Log format (plain, json)
+format = "plain"
+# Log to file
+file = "/data/logs/ethereum-rust.log"
+# Max log file size in MB
+max_size = 100
+# Max log files to keep
+max_backups = 10
+# Log modules
+modules = [
+    "ethereum_rust=info",
+    "ethereum_evm=info",
+    "ethereum_network=info",
+    "ethereum_rpc=info",
+    "ethereum_consensus=info"
+]
+
+[security]
+# Enable AI-powered threat detection
+ai_detection = false
+# Enable quantum-resistant signatures
+quantum_resistant = false
+# Enable zkML verification
+zkml_verification = false
+# Rate limiting
+[security.rate_limit]
+enabled = true
+requests_per_second = 100
+burst = 200
+
+[advanced]
+# Enable zkEVM prover
+zkevm_enabled = false
+# Proof system (groth16, plonk, plonky2)
+proof_system = "plonky2"
+# Enable cross-chain messaging
+cross_chain_enabled = false
+# Supported chains
+supported_chains = [1, 137, 42161]
+
+[monitoring]
+# Health check endpoint
+health_endpoint = "0.0.0.0:8080/health"
+# Ready check endpoint
+ready_endpoint = "0.0.0.0:8080/ready"
+# Profiling
+profiling_enabled = false
+profiling_endpoint = "0.0.0.0:6060"
+
+[backup]
+# Enable automatic backups
+enabled = false
+# Backup interval
+interval = "24h"
+# Backup path
+path = "/backup"
+# Retention days
+retention_days = 30
+# Compression
+compress = true
+
+[experimental]
+# Enable experimental features
+enabled = false
+# Feature flags
+features = [
+    "distributed_block_building",
+    "encrypted_mempool",
+    "hybrid_rollup_support",
+    "recursive_snarks"
+]

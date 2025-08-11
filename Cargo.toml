@@ -35,6 +35,11 @@ members = [
     "crates/verkle",
     "crates/evm-jit",
     "crates/parallel-execution",
+    "crates/zkml",
+    "crates/account-abstraction",
+    "crates/cross-chain",
+    "crates/zkevm",
+    "crates/ai-security",
 ]
 
 [dependencies]

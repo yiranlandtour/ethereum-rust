@@ -1,0 +1,52 @@
+[package]
+name = "ethereum-ssf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ethereum-types = { path = "../types" }
+ethereum-core = { path = "../core" }
+ethereum-consensus = { path = "../consensus" }
+ethereum-crypto = { path = "../crypto" }
+ethereum-crypto-advanced = { path = "../crypto-advanced" }
+
+# BLS signatures for aggregation
+blst = "0.3"
+bls-signatures = "0.15"
+
+# Consensus algorithms
+snow = "0.9"  # Avalanche consensus
+tendermint = "0.35"
+hotstuff = "0.1"
+
+# Aggregation trees
+merkle-tree = "0.6"
+sparse-merkle-tree = "0.3"
+
+# Fast finality
+instant = "0.1"
+crossbeam = "0.8"
+
+# Random number generation
+rand = "0.8"
+
+# Metrics
+prometheus = "0.13"
+
+# Async runtime
+tokio = { version = "1.40", features = ["full"] }
+async-trait = "0.1"
+
+# Error handling
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"
+
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.0"
